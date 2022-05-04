@@ -47,14 +47,23 @@ in
     
     fstrim.enable = true;
     dbus.packages = [ pkgs.dconf ];
-    udev.packages = [pkgs.gnome3.gnome-settings-daemon ];
+    udev = { 
+      packages = with pkgs; [
+        gnome3.gnome-settings-daemon
+        usb-modeswitch-data
+      ];
+    };
     gnome.chrome-gnome-shell.enable = true;
   };
+
+  virtualisation.libvirtd.enable = true;
 
   hardware.opengl = {
     driSupport = true;
     driSupport32Bit = true;
   };
+
+  hardware.steam-hardware.enable = true;
 
   # Enable sound.
   sound.enable = true;
@@ -62,13 +71,14 @@ in
 
   users.users.${user} = {
     isNormalUser = true;
-    extraGroups = [ "wheel" ];
+    extraGroups = [ "wheel" "libvirtd" "input" ];
     initialPassword = "password";
   };
   
   programs = {
     steam.enable = true;
     gamemode.enable = true;
+    dconf.enable = true;
   };
 
   # List packages installed in system profile. To search, run:
@@ -84,6 +94,8 @@ in
     mangohud
     vlc
     gimp-with-plugins
+    virt-manager
+    usb-modeswitch
     nur.repos.c0deaddict.oversteer
   ];
 
@@ -92,8 +104,12 @@ in
   system.stateVersion = "22.05"; # Did you read the comment?
 
   nix = {
+    autoOptimiseStore = true;
     package = pkgs.nixFlakes;
-    extraOptions = "experimental-features = nix-command flakes";
+    extraOptions = '' 
+      experimental-features = nix-command flakes
+      warn-dirty = false
+    '';
   };
 
 }
